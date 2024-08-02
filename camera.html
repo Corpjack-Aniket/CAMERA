@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Image from Camera</title>
+</head>
+<body>
+    <h1>Capture Image from Camera</h1>
+    <form id="photoForm" action="/submit-photo" method="post" enctype="multipart/form-data">
+        <label for="cameraInput">Take a photo:</label>
+        <br>
+        <video id="video" width="320" height="240" autoplay></video>
+        <br>
+        <button type="button" id="snap">Take Photo</button>
+        <br>
+        <canvas id="canvas" width="320" height="240"></canvas>
+        <br>
+        <input type="hidden" id="photo" name="photo">
+        <button type="submit">Submit Photo</button>
+    </form>
+
+    <script>
+        // Get access to the camera!
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+            });
+        }
+
+        // Trigger photo take
+        document.getElementById('snap').addEventListener('click', function() {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const video = document.getElementById('video');
+            context.drawImage(video, 0, 0, 320, 240);
+            
+            // Convert the image to a data URL and set it as the value of the hidden input
+            const dataURL = canvas.toDataURL('image/png');
+            document.getElementById('photo').value = dataURL;
+        });
+
+        // Handle form submission
+        document.getElementById('photoForm').addEventListener('submit', function(event) {
+            const photoInput = document.getElementById('photo');
+            if (!photoInput.value) {
+                alert('Please take a photo first.');
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
